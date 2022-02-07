@@ -9,16 +9,20 @@ screen = pygame.display.set_mode((800, 600), 0)
 
 class Pacman:
     def __init__(self):
+        self.coluna = 1
+        self.linha = 1
         self.centro_x = 400
         self.centro_y = 300
-        self.tamanho = 100
+        self.tamanho = 800 // 30
         self.raio = self.tamanho // 2
         self.velocidade_x = 1
         self.velocidade_y = 1
 
     def calcula_regras(self):
-        self.centro_x += self.velocidade_x
-        self.centro_y += self.velocidade_y
+        self.coluna += self.velocidade_x
+        self.linha += self.velocidade_y
+        self.centro_x = int(self.coluna * self.tamanho + self.raio)
+        self.centro_y = int(self.linha * self.tamanho + self.raio)
 
         if self.centro_x + self.raio > 800:
             self.velocidade_x = -1
@@ -66,6 +70,7 @@ if __name__ == '__main__':
         screen.fill(PRETO)
         pacman.pintar(screen)
         pygame.display.update()
+        pygame.time.delay(100)
 
         # Captura os eventos
         for acao in pygame.event.get():
