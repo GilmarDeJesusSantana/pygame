@@ -1,19 +1,48 @@
 import pygame
 
-from constantes import AMARELO, PRETO, VELOCIDADE, PARAR
+from constantes import AMARELO, PRETO, AZUL, VELOCIDADE, PARAR
 
 pygame.init()
 
 screen = pygame.display.set_mode((800, 600), 0)
 
 
+class Cenario:
+    def __init__(self, tamanho):
+        self.tamanho = tamanho
+        self.matriz = [
+            [2, 2, 2, 2, 2],
+            [2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2],
+            [2, 1, 2, 1, 2],
+            [2, 2, 2, 2, 2],
+
+        ]
+
+    def pintar_linha(self, tela, numero_linha, linha):
+        for numero_coluna, coluna in enumerate(linha):
+            x = numero_coluna * self.tamanho
+            y = numero_linha * self.tamanho
+            half = self.tamanho // 2
+            cor = PRETO
+            if coluna == 2:
+                cor = AZUL
+            pygame.draw.rect(tela, cor, (x, y, self.tamanho, self.tamanho), 0)
+            if coluna == 1:
+                pygame.draw.circle(tela, AMARELO,(x + half, y + half), self.tamanho // 10, 0 )
+
+    def pintar(self, tela):
+        for numero_linha, linha in enumerate(self.matriz):
+            self.pintar_linha(tela, numero_linha, linha)
+
+
 class Pacman:
-    def __init__(self):
+    def __init__(self, tamanho):
         self.coluna = 1
         self.linha = 1
         self.centro_x = 400
         self.centro_y = 300
-        self.tamanho = 800 // 30
+        self.tamanho = tamanho
         self.raio = self.tamanho // 2
         self.velocidade_x = 0
         self.velocidade_y = 0
@@ -42,7 +71,6 @@ class Pacman:
         olho_x = int(self.centro_x + self.raio / 3)
         olho_y = int(self.centro_y - self.raio * 0.70)
         olho_raio = int(self.raio / 10)
-
         pygame.draw.circle(tela, PRETO, (olho_x, olho_y), olho_raio, 0)
 
     def processar_eventos(self, eventos):
@@ -56,6 +84,7 @@ class Pacman:
                     self.velocidade_y = -VELOCIDADE
                 elif acao.key == pygame.K_DOWN:
                     self.velocidade_y = VELOCIDADE
+
             elif acao.type == pygame.KEYUP:
                 if acao.key == pygame.K_RIGHT:
                     self.velocidade_x = PARAR
@@ -68,16 +97,17 @@ class Pacman:
 
     def processar_eventos_mouse(self, eventos):
         delay = 100
-        for acao in eventos:
-            if acao.type == pygame.MOUSEMOTION:
-                mouse_x, mouse_y = acao.pos
+        for ponteiro in eventos:
+            if ponteiro.type == pygame.MOUSEMOTION:
+                mouse_x, mouse_y = ponteiro.pos
                 self.coluna = (mouse_x - self.centro_x) / delay
                 self.linha = (mouse_y - self.centro_y) / delay
 
 
 if __name__ == '__main__':
-
-    pacman = Pacman()
+    size = 600 // 30
+    pacman = Pacman(size)
+    cenario = Cenario(size)
 
     while True:
         # Calcular as regras
@@ -85,6 +115,7 @@ if __name__ == '__main__':
 
         # Pintar a tela
         screen.fill(PRETO)
+        cenario.pintar(screen)
         pacman.pintar(screen)
         pygame.display.update()
         pygame.time.delay(100)
@@ -94,4 +125,4 @@ if __name__ == '__main__':
         for acao in eventos:
             if acao.type == pygame.QUIT:
                 exit()
-        pacman.processar_eventos_mouse(eventos)
+        pacman.processar_eventos(eventos)
